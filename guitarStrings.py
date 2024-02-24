@@ -61,4 +61,35 @@ class myGuitar():
     def getTemperedSysNotes(self):
         return self.tempered_sys_notes
     
-    # incluir os padrões Drop D e Drop C
+    def getSixStringScale(self, fretboard):
+        # cordas soltas da guitarra de seis cordas, na afinação padrão
+
+        strings = {"E1":1, "A":1, "D":2, "G":2, "B":2, "E":3}
+        valor = 1
+        real_notes_fretboard = []
+
+        for i in range(len(fretboard)):
+            v = []
+            
+            for j in range(len(fretboard[i])):                
+                if j == 0:
+                    if i == 0:
+                        simple_note = fretboard[i][j] + str(i + 1)
+                    else:
+                        simple_note = fretboard[i][j]
+                    
+                    valor = strings.get(simple_note)                    
+
+                else:
+                    simple_note = fretboard[i][j]
+
+                    if simple_note == "C":
+                        valor += 1
+                
+                real_note = "./sounds/" + fretboard[i][j] + str(valor) + ".mp3"
+                v.append(real_note)
+            
+            real_notes_fretboard.append(v)
+
+        return real_notes_fretboard
+

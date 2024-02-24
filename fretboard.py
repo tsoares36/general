@@ -1,11 +1,43 @@
 import flet as ft
 from guitarStrings import myGuitar as mg
 from myScales import myScale as ms
-
+import os
+import pygame
+# dia 24/02/2024 - 04:51
 # --------------------------------------------------------------------------------------------------------------------
+audio_obj = []
 
 def main(page: ft.Page):
+    global audio_obj
+    reprod_andamento = False
+
+    def createAudio(e):
+        global audio_obj
+        nonlocal reprod_andamento
+        
+        l_yes_no = openFile("./whatToPlay.txt")
+        l_sounds = openFile("./sounds.txt")
+
+        pygame.mixer.init()
     
+        for i in range(len(l_yes_no)):
+            for j in range(len(l_yes_no[i])):
+                if l_yes_no[i][j] == "1":
+                    pygame.mixer.music.load(str(l_sounds[i][j]))
+                    pygame.mixer.music.play()
+
+                if reprod_andamento:
+                    pygame.mixer.music.stop()
+                    reprod_andamento = False
+                    return
+
+                while pygame.mixer.music.get_busy():
+                    pygame.time.Clock().tick(5)  # Controle de velocidade de reprodução
+                 
+    def stopAudio(e):
+        nonlocal reprod_andamento
+        reprod_andamento = True
+
     def k(fretboard, highlights=[]):
         
         guitar_obj_text, guitar_obj_row = [], []
@@ -78,9 +110,10 @@ def main(page: ft.Page):
 
         return items
         
-        
     def clicked(e):
-        fretboard, highlights = [], []
+        fretboard = []
+        highlights = []
+        sounds = []
 
         instructions = show_instructions()
         [page.controls.remove(instructions[i]) for i in range(len(instructions))]
@@ -90,6 +123,7 @@ def main(page: ft.Page):
         if guitar_dropdown.value == "Six Strings":
             newGuitar = mg(6, frets)
             fretboard = newGuitar.sixString()
+            sounds = newGuitar.getSixStringScale(fretboard=fretboard)
         
         elif guitar_dropdown.value == "Seven Strings":
             newGuitar = mg(7, frets)
@@ -107,16 +141,33 @@ def main(page: ft.Page):
         # remover rows do fretboard
         list_fret_rows = k(fretboard, highlights)
         [page.controls.remove(list_fret_rows[i]) for i in range(len(list_fret_rows))]
-                
+
+        # persistir os dados num arquivo texto simples
+        writeFile(sounds, "sounds.txt")
+        writeFile(highlights, "whatToPlay.txt")
+
         return
+
+    def writeFile(lista, filename):
+        with open(filename, "w") as fs:
+            for sublista in lista:
+                linha = ', '.join(str(elemento) for elemento in sublista)
+                fs.write(linha + "\n")
+    
+    def openFile(filename):
+        with open(filename, "r") as f:
+            linhas = f.readlines()
+            l = [linha.strip().split(', ') for linha in linhas]
+
+        return l
     
     page.padding = 0
 
     msg = ft.Text(value="Fretboard", size=20)
     page.add(msg)   # o mesmo que 'page.controls.append(msg)'
     
-    # mínimo de cordas 6; máximo 7
-    # mínimo de 'frets' 22; máximo 24
+    # mínimo de cordas 6; máximo 8
+    # trastes: 22 ou 24
 
     guitar_type = ft.Text(value="Tipo de Guitarra", width=200)
     guitar_dropdown = ft.Dropdown(width=200,     
@@ -126,11 +177,10 @@ def main(page: ft.Page):
         ft.dropdown.Option("Eight Strings")
     ])
 
-    number_of_frets = ft.Text(value="Trastes", width=75)
-    frets_dropdown = ft.Dropdown(width=75,
+    number_of_frets = ft.Text(value="Trastes", width=100)
+    frets_dropdown = ft.Dropdown(width=90,
     options=[
-        ft.dropdown.Option(22),
-        ft.dropdown.Option(23),
+        ft.dropdown.Option(22),        
         ft.dropdown.Option(24)
     ])
 
@@ -158,14 +208,17 @@ def main(page: ft.Page):
         ft.dropdown.Option("Maior Natural"),
         ft.dropdown.Option("Menor Natural"),
         ft.dropdown.Option("Menor Harmônica"),
+        ft.dropdown.Option("Menor Melódica"),
         ft.dropdown.Option("Pentatônica Maior"),
         ft.dropdown.Option("Pentatônica Menor"),
     ])
-    
-    submit_btn = ft.ElevatedButton(text="GO", on_click=clicked)
 
+    button_play = ft.ElevatedButton("PLAY", on_click=createAudio)
+    button_pause = ft.ElevatedButton("PAUSE", on_click=stopAudio)
+    submit_btn = ft.ElevatedButton(text="GO", on_click=clicked)
+    
     page.add(ft.Row([guitar_type, number_of_frets, pitch, scale_type], alignment=ft.MainAxisAlignment.CENTER))
-    page.add(ft.Row([guitar_dropdown, frets_dropdown, pitch_dropdown, scale_dropdown, submit_btn], 
+    page.add(ft.Row([guitar_dropdown, frets_dropdown, pitch_dropdown, scale_dropdown, submit_btn, button_play, button_pause], 
                     alignment=ft.MainAxisAlignment.CENTER))
 
     page.update()

@@ -5,6 +5,7 @@ class myScale():
         self.majorNaturalFormula = [0, 2, 4, 5, 7, 9, 11]        
         self.minorNaturalFormula = [0, 2, 3, 5, 7, 8, 10]
         self.minorHarmonicFormula = [0, 2, 3, 5, 7, 8, 11]
+        self.minorMelodicFormula = [0, 2, 3, 5, 7, 9, 11]
         self.majorPentatonicFormula = [0, 2, 4, 7, 9]
         self.minorPentatonicFormula = [0, 3, 5, 7, 10]
         self.scale_pitch = scale_pitch
@@ -16,6 +17,7 @@ class myScale():
         self.dict_scale_type = {"Maior Natural":self.majorNaturalFormula,
                                 "Menor Natural":self.minorNaturalFormula,
                                 "Menor Harmônica":self.minorHarmonicFormula,
+                                "Menor Melódica":self.minorMelodicFormula,
                                 "Pentatônica Maior":self.majorPentatonicFormula,
                                 "Pentatônica Menor":self.minorPentatonicFormula}
 
