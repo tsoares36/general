@@ -128,10 +128,12 @@ def main(page: ft.Page):
         elif guitar_dropdown.value == "Seven Strings":
             newGuitar = mg(7, frets)
             fretboard = newGuitar.sevenString()
+            sounds = newGuitar.getSevenStringScale(fretboard=fretboard)
         
         else:
             newGuitar = mg(8, frets)
             fretboard = newGuitar.octaString()
+            sounds = newGuitar.getOctaStringScale(fretboard=fretboard)
         
         scale_type = scale_dropdown.value        
         if pitch_dropdown.value is not None and scale_dropdown.value is not None:
@@ -164,12 +166,13 @@ def main(page: ft.Page):
     page.padding = 0
 
     msg = ft.Text(value="Fretboard", size=20)
-    page.add(msg)   # o mesmo que 'page.controls.append(msg)'
+
+    # o mesmo que 'page.controls.append(msg)'
+    page.add(msg)
     
     # mínimo de cordas 6; máximo 8
     # trastes: 22 ou 24
 
-    guitar_type = ft.Text(value="Tipo de Guitarra", width=200)
     guitar_dropdown = ft.Dropdown(width=200,     
     options=[
         ft.dropdown.Option("Six Strings"),
@@ -177,7 +180,6 @@ def main(page: ft.Page):
         ft.dropdown.Option("Eight Strings")
     ])
 
-    number_of_frets = ft.Text(value="Trastes", width=100)
     frets_dropdown = ft.Dropdown(width=90,
     options=[
         ft.dropdown.Option(22),        
@@ -185,7 +187,7 @@ def main(page: ft.Page):
     ])
 
     # notas no sistema temperado
-    pitch = ft.Text(value="Tonalidade", width=100)
+    
     pitch_dropdown = ft.Dropdown(width=100,
     options=[
         ft.dropdown.Option("C"),
@@ -202,7 +204,6 @@ def main(page: ft.Page):
         ft.dropdown.Option("B")        
     ])
     
-    scale_type = ft.Text(value="Escala/Modo", width=200)
     scale_dropdown = ft.Dropdown(width=200,
     options=[
         ft.dropdown.Option("Maior Natural"),
@@ -216,9 +217,41 @@ def main(page: ft.Page):
     button_play = ft.ElevatedButton("PLAY", on_click=createAudio)
     button_pause = ft.ElevatedButton("PAUSE", on_click=stopAudio)
     submit_btn = ft.ElevatedButton(text="GO", on_click=clicked)
+
+    guitar_type = ft.Text(value="Tipo de Guitarra", width=200)
+    number_of_frets = ft.Text(value="Trastes", width=100)
+    pitch = ft.Text(value="Tonalidade", width=100)
+    scale_type = ft.Text(value="Escala/Modo", width=200)
+
+    column_layout_1 = ft.Column(
+        controls = [
+            guitar_type,
+            guitar_dropdown
+        ]
+    )
     
-    page.add(ft.Row([guitar_type, number_of_frets, pitch, scale_type], alignment=ft.MainAxisAlignment.CENTER))
-    page.add(ft.Row([guitar_dropdown, frets_dropdown, pitch_dropdown, scale_dropdown, submit_btn, button_play, button_pause], 
+    column_layout_2 = ft.Column(
+        controls = [
+            number_of_frets,
+            frets_dropdown
+        ]
+    )
+
+    column_layout_3 = ft.Column(
+        controls = [
+            pitch,
+            pitch_dropdown
+        ]
+    )
+
+    column_layout_4 = ft.Column(
+        controls = [
+            scale_type,
+            scale_dropdown
+        ]        
+    )
+
+    page.add(ft.Row([column_layout_1, column_layout_2, column_layout_3, column_layout_4, submit_btn, button_play, button_pause], 
                     alignment=ft.MainAxisAlignment.CENTER))
 
     page.update()
